@@ -5,7 +5,7 @@ const client = new discord.Client();
 const token = process.env.DISCORD_BOT_TOKEN;
 keepAppUp();
 
-const fishGame = new FishGame();
+const fishGame = new FishGame(client);
 
 client.on('ready', () => {
    console.log('Logged in!');
