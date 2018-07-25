@@ -1,0 +1,67 @@
+[
+  {
+    "name":"Worthless",
+    "probability":100,
+    "fishes":
+    [
+      {
+        "name":"Piece of wood",
+        "mass":4,
+        "value":0
+      },
+      {
+        "name":"Coca-cola can",
+        "mass":1,
+        "value":0
+      }
+    ]
+  },
+  {
+    "name":"Common",
+    "probability":50,
+    "fishes":
+    [
+      {
+        "name":"Regular fish",
+        "mass":1,
+        "value":2
+      }
+    ]
+  },
+  {
+    "name":"Uncommon",
+    "probability":20,
+    "fishes":
+    [
+      {
+        "name":"Goldfish",
+        "mass":0.4,
+        "value":10
+      }
+    ]
+  },
+  {
+    "name":"Rare",
+    "probability":5,
+    "fishes":
+    [
+      {
+        "name":"Shark",
+        "mass":50,
+        "value":22
+      }
+    ]
+  },
+  {
+    "name":"Epic",
+    "probability":1,
+    "fishes":
+    [
+      {
+        "name":"Mysterious Chest",
+        "mass":10,
+        "value":100
+      }
+    ]
+  }
+]
