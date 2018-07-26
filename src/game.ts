@@ -89,8 +89,8 @@ class FishGame {
 
     initDatabase() {
         this.database = new sql.Database(`./players.sqlite`);
-        this.database.run(`CREATE TABLE IF NOT EXISTS ${this.playersDataTableName} (userId TEXT, gold INTEGER, lastMessageTime INTEGER, equipment STRING)`);
-        //this.database.run(`ALTER TABLE ${this.playersDataTableName} ADD COLUMN equipment STRING`);
+        //this.database.run(`CREATE TABLE IF NOT EXISTS ${this.playersDataTableName} (userId TEXT, gold INTEGER, lastMessageTime INTEGER, equipment STRING)`);
+        this.database.run(`ALTER TABLE ${this.playersDataTableName} ADD COLUMN equipment STRING`);
         this.database.all(`SELECT * FROM ${this.playersDataTableName}`, (err, rows) => {
             rows.forEach(row => {
                 if(row.userId != null) {
