@@ -79,7 +79,7 @@ class FishGame {
                 ]),
                 new Fish("Gold nugget", 0.2, 60, []),
             ]),
-            new FishGroup(Rarity.Epic, 100000, [
+            new FishGroup(Rarity.Epic, 1, [
                 new Fish("Mysterious chest", 10, 100, [
                     new ItemStack(this.getItem(ItemEnum.ironStick), 1)
                 ])
