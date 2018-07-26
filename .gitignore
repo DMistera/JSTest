@@ -1,2 +1,2 @@
 .vscode/launch.json
-*.sqlite
+node_modules

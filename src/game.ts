@@ -27,24 +27,23 @@ class FishGame {
 
     loadData() {
         this.materialData = [
-            new Item("Shark's tooth", Rarity.Rare, "Sharpy one", []), // 0
-            new Item("Leather strips", Rarity.Uncommon, "TODO", []), //1
-            new Item("Iron stick", Rarity.Rare, "TODO", []), //2
-            new Item("Strong wood", Rarity.Common, "TODO", []), //3
-            new Item("Iron strips", Rarity.Uncommon, "TODO", []) //4
+            new Item(ItemEnum.sharkTooth,"Shark's tooth", Rarity.Rare, "Sharpy one", []), 
+            new Item(ItemEnum.leatherStrips,"Leather strips", Rarity.Uncommon, "TODO", []), 
+            new Item(ItemEnum.ironStick,"Iron stick", Rarity.Rare, "TODO", []), 
+            new Item(ItemEnum.strongBranch,"Strong branch", Rarity.Common, "TODO", []), 
+            new Item(ItemEnum.ironStrips,"Iron strips", Rarity.Uncommon, "TODO", []), 
+            new Item(ItemEnum.shortString,"Short String", Rarity.Common, "TODO", []), 
         ]
-        this.rodData = [
-            new Rod("Wooden Stick", Rarity.Worthless, "Solid wooden stick you found nearby", 2, []),
-            new Rod("Wood Fishing Pole", Rarity.Common, "A couple of pieces joined together to resemble a fishing rod", 5, [
-                new ItemStack(this.getItem("Strong wood"), 1)
-            ]),
-            new Rod("Reinforced Fishing Pole", Rarity.Uncommon,  "Hard and tough fishing pole.", 15, [
-                new ItemStack(this.getItem("Iron strips"), 1)
-            ]),
-            new Rod("Iron Fishing Rod", Rarity.Rare, "TODO", 40, [
-                new ItemStack(this.getItem("Iron stick"), 5)
-            ])
-        ];
+        this.materialData.push(new Rod(ItemEnum.woodenStick, "Wooden Stick", Rarity.Worthless, "Solid wooden stick you found nearby", 2, []));
+        this.materialData.push(new Rod(ItemEnum.woodFishingPole,"Wood Fishing Pole", Rarity.Common, "A couple of pieces joined together to resemble a fishing rod", [
+            new ItemStack(this.getItem(ItemEnum.strongBranch), 1)
+        ], 5),);
+        this.materialData.push(new Rod(ItemEnum.reinforcedFishingPole, "Reinforced Fishing Pole", Rarity.Uncommon,  "Hard and tough fishing pole.", [
+            new ItemStack(this.getItem(ItemEnum.ironStrips), 1)
+        ], 15),);
+        this.materialData.push(new Rod(ItemEnum.ironFishingPole, "Iron Fishing Rod", Rarity.Rare, "TODO", [
+            new ItemStack(this.getItem(ItemEnum.ironStick), 1)
+        ], 40));
         this.fishGroupData = [
             new FishGroup(Rarity.Worthless, 60, [
                 new Fish("Piece of wood", 2, 0, []),
@@ -58,7 +57,11 @@ class FishGame {
                 new Fish("Whiting", 1.7, 2, []),
                 new Fish("Tongue Sole", 1.4, 5, []),
                 new Fish("Surfperch", 0.8, 7, []),
-                new Fish("Striped Catfish", 2.5, 9, [])
+                new Fish("Striped Catfish", 2.5, 9, []),
+                new Fish("Garbage Bag", 5, 0, [
+                    new ItemStack(this.getItem(ItemEnum.strongBranch), 1),
+                    new ItemStack(this.getItem(ItemEnum.shortString), 1),
+                ])
             ]),
             new FishGroup(Rarity.Uncommon, 20, [
                 new Fish("Brook Trout", 4.4, 11, []),
@@ -72,12 +75,14 @@ class FishGame {
             ]),
             new FishGroup(Rarity.Rare, 10, [
                 new Fish("Shark", 50, 45, [
-                    new ItemStack(this.materialData[0], 1)
+                    new ItemStack(this.getItem(ItemEnum.sharkTooth), 1)
                 ]),
                 new Fish("Gold nugget", 0.2, 60, []),
             ]),
-            new FishGroup(Rarity.Epic, 1, [
-                new Fish("Mysterious check", 10, 100, [])
+            new FishGroup(Rarity.Epic, 100000, [
+                new Fish("Mysterious chest", 10, 100, [
+                    new ItemStack(this.getItem(ItemEnum.ironStick), 1)
+                ])
             ])
         ];
         this.fishGroupData.forEach(fishGroup => {
@@ -89,8 +94,8 @@ class FishGame {
 
     initDatabase() {
         this.database = new sql.Database(`./players.sqlite`);
-        //this.database.run(`CREATE TABLE IF NOT EXISTS ${this.playersDataTableName} (userId TEXT, gold INTEGER, lastMessageTime INTEGER, equipment STRING)`);
-        this.database.run(`ALTER TABLE ${this.playersDataTableName} ADD COLUMN equipment STRING`);
+        this.database.run(`CREATE TABLE IF NOT EXISTS ${this.playersDataTableName} (userId TEXT, gold INTEGER, lastMessageTime INTEGER, equipment STRING)`);
+        //this.database.run(`ALTER TABLE ${this.playersDataTableName} ADD COLUMN equipment STRING`);
         this.database.all(`SELECT * FROM ${this.playersDataTableName}`, (err, rows) => {
             rows.forEach(row => {
                 if(row.userId != null) {
@@ -147,8 +152,6 @@ class FishGame {
         }
         else if(message.content.startsWith("!wizardry") && message.author.id == "150994488515362817") {
             var player = this.getPlayer("150994488515362817");
-            player.equipment.addItemStack(new ItemStack(this.getItem("Shark's tooth"), 2));
-            console.log('k');
         }
     }
 
@@ -192,6 +195,7 @@ class FishGame {
         var msg = `${this.getUser(player.userId)}, you've catched:\n${fish.getInfo()}`;
         if(loot != undefined) {
             msg += `You acquired a new item!\n${loot.item.getInfo()}`;
+            player.equipment.addItemStack(loot);
         }
         msg += `You now have **${player.gold}** gold!`;
         message.channel.send(msg);
@@ -241,13 +245,13 @@ class FishGame {
         return args[2];
     }
 
-    getUser(id) {
+    getUser(id) : DISCORD.User  {
         return this.client.users.find(u => {
             return u.id == id;
         })
     }
 
-    getPlayer(id) {
+    getPlayer(id) : Player {
         var p;
         p = this.players.find(player => {
             return player.userId == id;
@@ -290,9 +294,9 @@ class FishGame {
         return result;
     }
 
-    getItem(name) : Item {
-        return this.materialData.find(item => {
-            return item.name == name;
+    getItem(item : ItemEnum) : Item {
+        return this.materialData.find(i => {
+            return i.id == item;
         })
     }
 }
@@ -358,11 +362,13 @@ class Player {
 }
 
 class Item {
+    id : ItemEnum;
     description: any;
     rarity: Rarity;
     name: any;
     recipe : ItemStack[];
-    constructor(name, rarity, description, recipe : ItemStack[]) {
+    constructor(id, name, rarity, description, recipe : ItemStack[]) {
+        this.id = id;
         this.name = name;
         this.rarity = rarity;
         this.description = description;
@@ -370,14 +376,14 @@ class Item {
     }
 
     getInfo() {
-        return `**${name}**\n**Rarity:** ${this.rarity}\n**Description:**_${this.description}_\n`;
+        return `**${this.name}**\n**Rarity:** ${this.rarity}\n**Description:**_${this.description}_\n`;
     }
 }
 
 class Rod extends Item {
     maxWeight: any;
-    constructor(name, rarity, description, maxWeight, recipe) {
-        super(name, rarity, description, recipe);
+    constructor(id, name, rarity, description, recipe, maxWeight) {
+        super(id, name, rarity, description, recipe);
         this.maxWeight = maxWeight;
     }
 }
@@ -401,7 +407,7 @@ class ItemStack {
 
     static fromString(string : string, game : FishGame) {
         var args = string.split(':');
-        var item = game.getItem(args[0]);
+        var item = game.getItem(parseInt(args[0]));
         var quantity = parseInt(args[1]);
         return new ItemStack(item, quantity);
     }
@@ -464,3 +470,15 @@ class Equipment {
     }
 }
 
+enum ItemEnum {
+    sharkTooth,
+    leatherStrips,
+    ironStick,
+    strongBranch,
+    ironStrips,
+    woodenStick,
+    woodFishingPole,
+    reinforcedFishingPole,
+    ironFishingPole,
+    shortString
+}
