@@ -8,8 +8,11 @@
     "express": "^4.16.3",
     "sqlite3": "^4.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^10.5.3"
+  },
   "scripts": {
+    "start": "node bot/app.js",
     "test": "test"
   },
   "repository": {
