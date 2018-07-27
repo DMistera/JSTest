@@ -1,6 +1,14 @@
 import * as DISCORD from "discord.js";
 import * as sql from "sqlite3";
 
+/*
+TODO LIST:
+-Save current rod to database
+-View command
+-Hide unexplored items
+-Add shop and baits
+*/
+
 class FishGame {
     client: DISCORD.Client;
     playersDataTableName: string;
@@ -51,6 +59,7 @@ class FishGame {
             new ItemStack(this.getItem(ItemEnum.needle), 1),
             new ItemStack(this.getItem(ItemEnum.strongBranch), 1),
             new ItemStack(this.getItem(ItemEnum.pieceOfFiber), 5),
+            new ItemStack(this.getItem(ItemEnum.longString), 1),
         ], 15));
         this.itemData.push(new Rod(ItemEnum.ironFishingPole, "Iron Fishing Rod", Rarity.Rare, "Fishing rod made of iron", [
             new ItemStack(this.getItem(ItemEnum.ironStick), 1),
@@ -126,16 +135,18 @@ class FishGame {
         this.database.run(`CREATE TABLE IF NOT EXISTS ${this.playersDataTableName} (userId TEXT, gold INTEGER, lastMessageTime INTEGER, equipment STRING)`);
         //this.database.run(`ALTER TABLE ${this.playersDataTableName} ADD COLUMN equipment STRING`);
         this.database.all(`SELECT * FROM ${this.playersDataTableName}`, (err, rows) => {
-            rows.forEach(row => {
-                if(row.userId != null) {
-                    var p = this.players.find(player => {
-                        return player.userId == row.userId;
-                    });
-                    if(p == undefined) {
-                        this.players.push(new Player(row.userId, row.gold, row.lastMessageTime, Equipment.fromString(row.equipment, this)));
+            if(rows != undefined) {
+                rows.forEach(row => {
+                    if(row.userId != null) {
+                        var p = this.players.find(player => {
+                            return player.userId == row.userId;
+                        });
+                        if(p == undefined) {
+                            this.players.push(new Player(row.userId, row.gold, row.lastMessageTime, Equipment.fromString(row.equipment, this)));
+                        }
                     }
-                }
-            })
+                })
+            }
         });
         setInterval(() => {
             this.updateDatabase();
@@ -146,7 +157,7 @@ class FishGame {
         this.players.forEach(player => {
             this.database.get(`SELECT * FROM ${this.playersDataTableName} WHERE userId = "${player.userId}"`, (err, row) => {
                 if(!row) {
-                    this.database.run(`INSERT INTO ${this.playersDataTableName} (userId, gold, lastMessageTime, equipment STRING) VALUES (?, ?, ?, ?)`, [player.userId, player.gold, player.lastMessageTime, player.equipment.toString()]);
+                    this.database.run(`INSERT INTO ${this.playersDataTableName} (userId, gold, lastMessageTime, equipment) VALUES (?, ?, ?, ?)`, [player.userId, player.gold, player.lastMessageTime, player.equipment.toString()]);
                 }
                 else {
                     this.database.run(`UPDATE ${this.playersDataTableName} SET gold = ${player.gold}, lastMessageTime = ${player.lastMessageTime}, equipment = "${player.equipment.toString()}"  WHERE userId = "${player.userId}"`);

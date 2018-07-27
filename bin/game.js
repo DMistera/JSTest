@@ -1,6 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sql = require("sqlite3");
+/*
+TODO LIST:
+-Save current rod to database
+-View command
+-Hide unexplored items
+-Add shop and baits
+*/
 class FishGame {
     constructor(client) {
         this.client = client;
@@ -40,6 +47,7 @@ class FishGame {
             new ItemStack(this.getItem(ItemEnum.needle), 1),
             new ItemStack(this.getItem(ItemEnum.strongBranch), 1),
             new ItemStack(this.getItem(ItemEnum.pieceOfFiber), 5),
+            new ItemStack(this.getItem(ItemEnum.longString), 1),
         ], 15));
         this.itemData.push(new Rod(ItemEnum.ironFishingPole, "Iron Fishing Rod", Rarity.Rare, "Fishing rod made of iron", [
             new ItemStack(this.getItem(ItemEnum.ironStick), 1),
